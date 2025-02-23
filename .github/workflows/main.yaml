@@ -14,6 +14,27 @@ jobs:
     name: Build & Publish rust emscripten-wasm-eh sysroot
     runs-on: ubuntu-latest
     steps:
+      - name: Free unused disk space
+        run: |
+          # delete packages
+          sudo apt-get remove -y '^dotnet-.*' || true
+          sudo apt-get remove -y '^llvm-.*' || true
+          sudo apt-get remove -y '^temurin-.*' || true
+          sudo apt-get remove -y '^mysql-server-core-.*' || true
+          sudo apt-get remove -y '^postgresql-.*' || true
+          sudo apt-get remove -y azure-cli google-chrome-stable google-cloud-cli firefox powershell microsoft-edge-stable mono-devel || true
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+
+          # delete directories
+          sudo rm -rf /usr/share/dotnet/
+          sudo rm -rf /usr/share/swift/
+          sudo rm -rf /usr/local/graalvm/
+          sudo rm -rf /usr/local/.ghcup/
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /usr/local/share/chromium
+          sudo rm -rf /usr/local/lib/android
+
       - name: Checkout
         uses: actions/checkout@v4
 
