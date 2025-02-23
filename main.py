@@ -49,7 +49,7 @@ def main(emcc_version, date):
     run(["patch", "-p1", "-i", ROOT / "turn-on-emscripten-wasm-eh.patch"], cwd=RUST)
     print("> cp config.toml rust")
     shutil.copy("config.toml", RUST)
-    run(["./x.py", "build", "library"], cwd=RUST)
+    run(["./x.py", "build", "library", "--stage", "1"], cwd=RUST)
 
     shutil.make_archive(
         f"emcc-{emcc_version}_nightly-{date}.tar.bz2",
