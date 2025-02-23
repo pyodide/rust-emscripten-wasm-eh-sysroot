@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
-      - name: free up disk space
-        run: free-disk-space.sh
-
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: free up disk space
+        run: free-disk-space.sh
 
       - name: Set up Python
         uses: actions/setup-python@v4
