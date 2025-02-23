@@ -39,7 +39,7 @@ def main(emcc_version, date):
             [
                 "git",
                 "clone",
-                "git@github.com:rust-lang/rust.git",
+                "https://github.com/rust-lang/rust.git",
                 "--shallow-since=2025-01-01",
             ],
             cwd=ROOT,
