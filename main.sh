@@ -5,4 +5,4 @@ fi
 ./emsdk/emsdk install $1
 ./emsdk/emsdk activate $1
 source ./emsdk/emsdk_env.sh
-python main.py $2
+python3 main.py $@
