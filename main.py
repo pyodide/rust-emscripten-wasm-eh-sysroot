@@ -52,7 +52,7 @@ def main(emcc_version, date):
     run(["./x.py", "build", "library"], cwd=RUST)
 
     shutil.make_archive(
-        f"nightly-{date}_emcc-{emcc_version}.tar.bz2",
+        f"emcc-{emcc_version}_nightly-{date}.tar.bz2",
         "bztar",
         root_dir=STAGE1_STD,
         base_dir="wasm32-unknown-emscripten",

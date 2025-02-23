@@ -1,0 +1,35 @@
+name: Build & Publish rust emscripten-wasm-eh sysroot
+on:
+  workflow_dispatch:
+    inputs:
+      emcc_version:
+        description: Version of emcc to use
+        required: true
+      rust_nightly_date:
+        description: Rust nightly date
+        required: true
+
+jobs:
+  pyodide-packages:
+    name: Build & Publish rust emscripten-wasm-eh sysroot
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12.8
+
+      - name: Build Rust sysroot
+        run: |
+          ./main.sh ${{ inputs.emcc_version }} ${{ inputs.rust_nightly_date }}
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "emcc-{{ inputs.emcc_version }}_nightly-{{ inputs.rust_nightly_date }}.tar.bz2"
+          tag: emcc-{{ inputs.emcc_version }}_nightly-{{ inputs.rust_nightly_date }}
+          draft: false
+          prerelease: false
