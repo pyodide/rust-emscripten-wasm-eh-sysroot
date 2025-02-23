@@ -13,6 +13,7 @@ jobs:
   pyodide-packages:
     name: Build & Publish rust emscripten-wasm-eh sysroot
     runs-on: ubuntu-latest
+    timeout-minutes: 360
     steps:
       - name: free up disk space
         run: free-disk-space.sh
