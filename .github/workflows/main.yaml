@@ -33,7 +33,7 @@ jobs:
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "emcc-{{ inputs.emcc_version }}_nightly-{{ inputs.rust_nightly_date }}.tar.bz2"
-          tag: emcc-{{ inputs.emcc_version }}_nightly-{{ inputs.rust_nightly_date }}
+          artifacts: "emcc-${{ inputs.emcc_version }}_nightly-${{ inputs.rust_nightly_date }}.tar.bz2"
+          tag: emcc-${{ inputs.emcc_version }}_nightly-${{ inputs.rust_nightly_date }}
           draft: false
           prerelease: false
