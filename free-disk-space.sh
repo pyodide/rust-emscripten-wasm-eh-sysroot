@@ -4,6 +4,12 @@ set -euo pipefail
 # Free disk space on Linux GitHub action runners
 # Script inspired by https://github.com/jlumbroso/free-disk-space
 
+# Author: Rust contributors
+# License: MIT or APACHE 2.0
+# Copied from:
+# https://github.com/rust-lang/rust/blob/e0be1a02626abef2878cb7f4aaef7ae409477112/src/ci/scripts/free-disk-space.sh
+# See there for info about license and history.
+
 isX86() {
     local arch
     arch=$(uname -m)
