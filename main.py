@@ -8,7 +8,7 @@ import shutil
 
 ROOT = Path(__file__).parent
 RUST = ROOT / "rust"
-STAGE1_RUSTLIB = RUST / "rust/build/host/stage1/lib/rustlib/"
+STAGE1_RUSTLIB = RUST / "build/host/stage1/lib/rustlib/"
 
 
 def run(
