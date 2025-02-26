@@ -8,7 +8,7 @@ import shutil
 
 ROOT = Path(__file__).parent
 RUST = ROOT / "rust"
-STAGE1_STD = RUST / "build/host/stage1-std/"
+STAGE1_RUSTLIB = RUST / "rust/build/host/stage1/lib/rustlib/"
 
 
 def run(
@@ -54,7 +54,7 @@ def main(emcc_version, date):
     shutil.make_archive(
         f"emcc-{emcc_version}_nightly-{date}",
         "bztar",
-        root_dir=STAGE1_STD,
+        root_dir=STAGE1_RUSTLIB,
         base_dir="wasm32-unknown-emscripten",
     )
 
