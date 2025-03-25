@@ -69,7 +69,7 @@ jobs:
       - name: Create GitHub Release
         uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
-          artifacts: "emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}.tar.bz2"
+          artifacts: "upload/emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}.tar.bz2"
           tag: emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}
           draft: false
           prerelease: false
