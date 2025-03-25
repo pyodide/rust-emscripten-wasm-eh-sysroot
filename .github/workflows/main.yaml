@@ -16,13 +16,13 @@ jobs:
     timeout-minutes: 360
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: free up disk space
         run: ./free-disk-space.sh
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
         with:
           python-version: 3.12.8
 
@@ -31,7 +31,7 @@ jobs:
           ./main.sh ${{ inputs.emcc_version }} ${{ inputs.rust_nightly_date }}
 
       - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
           artifacts: "emcc-${{ inputs.emcc_version }}_nightly-${{ inputs.rust_nightly_date }}.tar.bz2"
           tag: emcc-${{ inputs.emcc_version }}_nightly-${{ inputs.rust_nightly_date }}
