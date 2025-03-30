@@ -40,11 +40,18 @@ jobs:
         run: |
           ./main.sh ${EMCC_VERSION} ${RUST_NIGHTLY_DATE}
 
+      - name: Sanity check
+        run: |
+          if [ ! -f emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}.tar.bz2 ]; then
+            echo "emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}.tar.bz2 not found"
+            exit 1
+          fi
+
       - name: Upload artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}
-          path: emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}.tar.bz2
+          name: rust-emcc-sysroot-${{ github.run_id}}
+          path: "*.tar.bz2"
           if-no-files-found: error
 
   publish:
@@ -58,18 +65,17 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
-          path: upload
           merge-multiple: true
 
       - name: Generate artifact attestation(s)
         uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v2.2.3
         with:
-          subject-path: "upload/*.tar.bz2"
+          subject-path: "*.tar.bz2"
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
-          artifacts: "upload/emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}.tar.bz2"
+          artifacts: "*.tar.bz2"
           tag: emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}
           draft: false
           prerelease: false
