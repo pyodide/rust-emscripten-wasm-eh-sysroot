@@ -79,6 +79,6 @@ jobs:
         uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
           artifacts: "*.tar.bz2"
-          tag: emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}
+          tag: emcc-${{ env.EMCC_VERSION }}_nightly-${{ env.RUST_NIGHTLY_DATE }}
           draft: false
           prerelease: false
