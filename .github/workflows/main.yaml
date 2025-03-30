@@ -9,31 +9,76 @@ on:
         description: Rust nightly date
         required: true
 
+env:
+  EMCC_VERSION: ${{ inputs.emcc_version }}
+  RUST_NIGHTLY_DATE: ${{ inputs.rust_nightly_date }}
+
+permissions: {}
+
 jobs:
   pyodide-packages:
     name: Build & Publish rust emscripten-wasm-eh sysroot
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     timeout-minutes: 360
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: free up disk space
         run: ./free-disk-space.sh
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
         with:
           python-version: 3.12.8
 
       - name: Build Rust sysroot
         run: |
-          ./main.sh ${{ inputs.emcc_version }} ${{ inputs.rust_nightly_date }}
+          ./main.sh ${EMCC_VERSION} ${RUST_NIGHTLY_DATE}
+
+      - name: Sanity check
+        run: |
+          if [ ! -f emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}.tar.bz2 ]; then
+            echo "emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}.tar.bz2 not found"
+            exit 1
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: rust-emcc-sysroot-${{ github.run_id}}
+          path: "*.tar.bz2"
+          if-no-files-found: error
+
+  publish:
+    name: Publish rust emscripten-wasm-eh sysroot
+    runs-on: ubuntu-latest
+    needs: [pyodide-packages]
+    permissions:
+      # For attestations
+      id-token: write
+      attestations: write
+      # For creating a release
+      contents: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
+        with:
+          merge-multiple: true
+
+      - name: Generate artifact attestation(s)
+        uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v2.2.3
+        with:
+          subject-path: "*.tar.bz2"
 
       - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
-          artifacts: "emcc-${{ inputs.emcc_version }}_nightly-${{ inputs.rust_nightly_date }}.tar.bz2"
-          tag: emcc-${{ inputs.emcc_version }}_nightly-${{ inputs.rust_nightly_date }}
+          artifacts: "*.tar.bz2"
+          tag: emcc-${{ env.EMCC_VERSION }}_nightly-${{ env.RUST_NIGHTLY_DATE }}
           draft: false
           prerelease: false
