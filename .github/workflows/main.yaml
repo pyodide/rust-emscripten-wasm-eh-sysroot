@@ -71,12 +71,12 @@ jobs:
           merge-multiple: true
 
       - name: Generate artifact attestation(s)
-        uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd # v2.3.0
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
         with:
           subject-path: "*.tar.bz2"
 
       - name: Create GitHub Release
-        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
+        uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # v1.18.0
         with:
           artifacts: "*.tar.bz2"
           tag: emcc-${{ env.EMCC_VERSION }}_nightly-${{ env.RUST_NIGHTLY_DATE }}
