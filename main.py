@@ -21,6 +21,20 @@ def run(
     return result
 
 
+def apply_patch(name: str) -> None:
+    run(["patch", "-p1", "-i", ROOT / name], cwd=RUST)
+
+
+def apply_patches() -> None:
+    # The wasm base target must force the new (non-legacy) exception-handling
+    # instructions via `-wasm-use-legacy-eh=false`.
+    base = RUST / "compiler/rustc_target/src/spec/base/wasm.rs"
+    if "-wasm-use-legacy-eh=false" not in base.read_text():
+        apply_patch("turn-on-new-wasm-eh-base.patch")
+
+    apply_patch("turn-on-new-wasm-eh.patch")
+
+
 def main(emcc_version, date):
     print(
         "> Requesting",
@@ -46,7 +60,7 @@ def main(emcc_version, date):
         )
     run(["git", "reset", "--hard"], cwd=RUST)
     run(["git", "checkout", commit_hash], cwd=RUST)
-    run(["patch", "-p1", "-i", ROOT / "turn-on-emscripten-wasm-eh.patch"], cwd=RUST)
+    apply_patches()
     print("> cp config.toml rust")
     shutil.copy("config.toml", RUST)
     run(["./x.py", "build", "library", "--stage", "1"], cwd=RUST)

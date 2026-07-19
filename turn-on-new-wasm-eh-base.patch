@@ -1,0 +1,19 @@
+diff --git a/compiler/rustc_target/src/spec/base/wasm.rs b/compiler/rustc_target/src/spec/base/wasm.rs
+index 7ede45766ea..ac069787f75 100644
+--- a/compiler/rustc_target/src/spec/base/wasm.rs
++++ b/compiler/rustc_target/src/spec/base/wasm.rs
+@@ -114,6 +114,14 @@ macro_rules! args {
+         // gdb scripts don't work on wasm blobs
+         emit_debug_gdb_scripts: false,
+ 
++        // Differ from LLVM's default to use the legacy exception-handling
++        // proposal instructions and use the standard exception-handling
++        // instructions. Note that this is only applicable when unwinding is
++        // actually turned on, which it's not by default on this target. For
++        // `-Zbuild-std` builds, however, this affects when rebuilding libstd
++        // with unwinding.
++        llvm_args: cvs!["-wasm-use-legacy-eh=false"],
++
+         // There's more discussion of this at
+         // https://bugs.llvm.org/show_bug.cgi?id=52442 but the general result is
+         // that this isn't useful for wasm and has tricky issues with
