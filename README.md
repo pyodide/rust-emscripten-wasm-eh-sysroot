@@ -1,12 +1,23 @@
 To build the rust stdlib for Emscripten with emscripten-wasm-eh:
 ```sh
-./main.sh <emscripten-version> <rust-nightly-date>
+./main.sh <emscripten-version> <rust-version>
 ```
 
-e.g.:
+`<rust-version>` can be either a nightly date (`YYYY-MM-DD`) or a released
+stable version (`X.Y.Z`).
+
+Nightly, e.g.:
 ```sh
 ./main.sh 3.1.74 2025-02-01
 ```
+
+Stable, e.g.:
+```sh
+./main.sh 3.1.74 1.85.0
+```
+
+The resulting archive is named `emcc-<emscripten-version>_<channel>-<rust-version>.tar.bz2`,
+e.g. `emcc-3.1.74_nightly-2025-02-01.tar.bz2` or `emcc-3.1.74_stable-1.85.0.tar.bz2`.
 
 ## Why?
 

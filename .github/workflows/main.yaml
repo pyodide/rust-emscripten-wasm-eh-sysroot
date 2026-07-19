@@ -5,13 +5,13 @@ on:
       emcc_version:
         description: Version of emcc to use
         required: true
-      rust_nightly_date:
-        description: Rust nightly date
+      rust_version:
+        description: Rust version - a nightly date (YYYY-MM-DD) or a stable release (e.g. 1.85.0)
         required: true
 
 env:
   EMCC_VERSION: ${{ inputs.emcc_version }}
-  RUST_NIGHTLY_DATE: ${{ inputs.rust_nightly_date }}
+  RUST_VERSION: ${{ inputs.rust_version }}
 
 permissions: {}
 
@@ -22,6 +22,8 @@ jobs:
     permissions:
       contents: read
     timeout-minutes: 360
+    outputs:
+      tag: ${{ steps.sanity.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -38,14 +40,18 @@ jobs:
 
       - name: Build Rust sysroot
         run: |
-          ./main.sh ${EMCC_VERSION} ${RUST_NIGHTLY_DATE}
+          ./main.sh ${EMCC_VERSION} ${RUST_VERSION}
 
       - name: Sanity check
+        id: sanity
         run: |
-          if [ ! -f emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}.tar.bz2 ]; then
-            echo "emcc-${EMCC_VERSION}_nightly-${RUST_NIGHTLY_DATE}.tar.bz2 not found"
+          shopt -s nullglob
+          archives=(emcc-*.tar.bz2)
+          if [ ${#archives[@]} -ne 1 ]; then
+            echo "expected exactly one sysroot archive, found: ${archives[*]:-none}"
             exit 1
           fi
+          echo "tag=${archives[0]%.tar.bz2}" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
@@ -79,6 +85,6 @@ jobs:
         uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
         with:
           artifacts: "*.tar.bz2"
-          tag: emcc-${{ env.EMCC_VERSION }}_nightly-${{ env.RUST_NIGHTLY_DATE }}
+          tag: ${{ needs.pyodide-packages.outputs.tag }}
           draft: false
           prerelease: false

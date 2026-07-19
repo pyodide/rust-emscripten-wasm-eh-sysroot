@@ -1,3 +1,4 @@
+import re
 import urllib.request
 import tomllib
 from pathlib import Path
@@ -9,6 +10,8 @@ import shutil
 ROOT = Path(__file__).parent
 RUST = ROOT / "rust"
 STAGE1_RUSTLIB = RUST / "build/host/stage1/lib/rustlib/"
+
+NIGHTLY_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 
 
 def run(
@@ -35,14 +38,37 @@ def apply_patches() -> None:
     apply_patch("turn-on-new-wasm-eh.patch")
 
 
-def main(emcc_version, date):
-    print(
-        "> Requesting",
-        f"http://static.rust-lang.org/dist/{date}/channel-rust-nightly.toml",
+def resolve_release(rust_version: str) -> tuple[str, str]:
+    """Map a requested Rust version to a (channel, manifest_url).
+
+    A ``YYYY-MM-DD`` argument selects that day's nightly, anything else is
+    treated as a released stable version (e.g. ``1.85.0``).
+    """
+    if NIGHTLY_DATE.fullmatch(rust_version):
+        channel = "nightly"
+        url = (
+            f"http://static.rust-lang.org/dist/{rust_version}"
+            "/channel-rust-nightly.toml"
+        )
+    else:
+        channel = "stable"
+        url = f"http://static.rust-lang.org/dist/channel-rust-{rust_version}.toml"
+    return channel, url
+
+
+def set_channel(channel: str) -> None:
+    """Point the copied ``config.toml`` at the channel we're building."""
+    config = RUST / "config.toml"
+    text = re.sub(
+        r'channel = ".*"', f'channel = "{channel}"', config.read_text()
     )
-    with urllib.request.urlopen(
-        f"http://static.rust-lang.org/dist/{date}/channel-rust-nightly.toml"
-    ) as response:
+    config.write_text(text)
+
+
+def main(emcc_version, rust_version):
+    channel, url = resolve_release(rust_version)
+    print("> Requesting", url)
+    with urllib.request.urlopen(url) as response:
         manifest = response.read().decode()
 
     rust = tomllib.loads(manifest)["pkg"]["rust"]
@@ -53,20 +79,27 @@ def main(emcc_version, date):
             [
                 "git",
                 "clone",
+                "--depth",
+                "1",
+                "--no-checkout",
                 "https://github.com/rust-lang/rust.git",
-                "--shallow-since=2025-01-01",
             ],
             cwd=ROOT,
         )
+    # Nightly commits live on `master` while stable release commits live on the
+    # `stable` branch, so fetch the exact commit rather than relying on any
+    # single branch's history being present.
+    run(["git", "fetch", "--depth", "1", "origin", commit_hash], cwd=RUST)
     run(["git", "reset", "--hard"], cwd=RUST)
     run(["git", "checkout", commit_hash], cwd=RUST)
     apply_patches()
     print("> cp config.toml rust")
     shutil.copy("config.toml", RUST)
+    set_channel(channel)
     run(["./x.py", "build", "library", "--stage", "1"], cwd=RUST)
 
     shutil.make_archive(
-        f"emcc-{emcc_version}_nightly-{date}",
+        f"emcc-{emcc_version}_{channel}-{rust_version}",
         "bztar",
         root_dir=STAGE1_RUSTLIB,
         base_dir="wasm32-unknown-emscripten",
