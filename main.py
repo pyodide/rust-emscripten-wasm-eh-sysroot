@@ -35,7 +35,8 @@ def apply_patches() -> None:
     if "-wasm-use-legacy-eh=false" not in base.read_text():
         apply_patch("turn-on-new-wasm-eh-base.patch")
 
-    apply_patch("turn-on-new-wasm-eh.patch")
+    if 'llvm_args: cvs![],' in base.read_text():
+        apply_patch("turn-on-new-wasm-eh.patch")
 
 
 def resolve_release(rust_version: str) -> tuple[str, str]:
